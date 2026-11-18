@@ -59,7 +59,6 @@ html, body { height: 100%; margin: 0; background: var(--night); color: var(--tex
 .t-mid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .t-mini { font-size: 15px; padding: 10px 14px; background: var(--panel); min-height: 44px; }
 #touch.overlay .t-dir, #touch.overlay .t-jump, #touch.overlay .t-mini { opacity: .6; }
-body.touch #wrench { position: static; opacity: .6; width: 46px; height: 46px; }
 #bugBadge { position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 5; display: inline-flex; align-items: center; gap: 10px; padding: 7px 18px 7px 12px; border-radius: 14px; background: var(--sun); color: var(--ink); border: 3px solid var(--ink); box-shadow: 0 6px 18px rgba(0,0,0,.35); font-family: var(--font); font-weight: 700; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; white-space: nowrap; }
 #bugBadge .bb-label { font-size: 15px; letter-spacing: .02em; }
 #bugBadge .bb-count { font-size: 22px; font-variant-numeric: tabular-nums; min-width: 4.2ch; text-align: right; }
@@ -70,8 +69,9 @@ body.touch #wrench { position: static; opacity: .6; width: 46px; height: 46px; }
 #bugBadge:focus-visible { outline: 3px solid #fff2a8; outline-offset: 3px; }
 #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
 
-#wrench { position: fixed; right: 14px; bottom: 14px; width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); opacity: .35; cursor: pointer; display: grid; place-items: center; z-index: 5; transition: opacity .2s; }
-#wrench:hover, #wrench:focus-visible { opacity: 1; outline: 2px solid var(--sun); outline-offset: 2px; }
+#wrench { position: fixed; left: 50%; top: 0; transform: translateX(-50%); z-index: 5; display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-family: var(--font); font-size: 13px; font-weight: 600; opacity: .75; cursor: pointer; white-space: nowrap; transition: opacity .2s; -webkit-tap-highlight-color: transparent; }
+#wrench:hover { opacity: 1; color: var(--text); }
+#wrench:focus-visible { opacity: 1; outline: 2px solid var(--sun); outline-offset: 2px; }
 
 #panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100vw); background: var(--panel); border-left: 1px solid var(--line); box-shadow: -20px 0 60px rgba(0,0,0,.5); z-index: 10; display: flex; flex-direction: column; transform: translateX(105%); transition: transform .25s ease; }
 #panel.open { transform: none; }
@@ -140,8 +140,9 @@ ol.bugs li.is-fixed { border-left-color: var(--good); }
   <button class="t-btn t-jump" id="tJump" type="button" aria-label="Jump">JUMP</button>
 </div>
 
-<button id="wrench" type="button" aria-label="Open developer panel" title="Developer panel (`)">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>
+<button id="wrench" type="button" title="Developer panel (`)">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>
+  <span>Developer panel</span>
 </button>
 
 <aside id="panel" aria-label="Developer panel" aria-hidden="true">
@@ -246,7 +247,7 @@ const touchBar = document.getElementById('touch');
 let touchMode = false;
 function resize() {
   // leave room around the frame so Bit has somewhere to go when he escapes (bug 'finish')
-  const BADGE = 62;                                           // room under the frame for the BUGS FOUND button
+  const BADGE = 100;                                          // room under the frame for the counter and the Developer panel button
   const fit = hAvail => Math.min(innerWidth * 0.9 / W, hAvail / H);
   let s = fit(innerHeight - 48 - BADGE), reserve = 0;
   if (touchMode) {
@@ -269,11 +270,12 @@ function placeBadge() {
   const r = canvas.getBoundingClientRect();
   b.style.top = Math.round(r.bottom + 14 + 8) + 'px';      // 14px frame ring, then a small gap
   b.style.left = Math.round(r.left + r.width / 2) + 'px';
+  const w = document.getElementById('wrench');
+  if (w) { w.style.top = Math.round(r.bottom + 14 + 8 + b.offsetHeight + 6) + 'px'; w.style.left = b.style.left; }
 }
 function enableTouch() {
   if (touchMode) return;
   touchMode = true; document.body.classList.add('touch'); touchBar.hidden = false;
-  const wrench = document.getElementById('wrench'); wrench.classList.add('t-btn'); touchBar.querySelector('.t-mid').appendChild(wrench);   // keep it clear of the game frame
   resize();
 }
 addEventListener('resize', resize); resize();
